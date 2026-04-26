@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCANMYMOUTH AI — INTELLIGENT DIAGNOSIS FOR ORAL HEALTH RISKS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables (light + dark) ─────────────────────────────── */
+    :root {
+      --teal:        #00b8a9;
+      --teal-dark:   #008f83;
+      --teal-light:  #e0f7f5;
+      --teal-glow:   rgba(0,184,169,0.12);
+      --bg:          #f4f7fb;
+      --white:       #ffffff;
+      --text:        #1a2332;
+      --text2:       #4a5568;
+      --text3:       #8a96a8;
+      --border:      #e2e8f0;
+      --shadow:      0 2px 12px rgba(0,0,0,0.08);
+      --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+      --radius:      12px;
+      --radius-sm:   8px;
+      --font:        'Inter', sans-serif;
+      --card-bg:     #ffffff;
+      --input-bg:    #f4f7fb;
+      --overlay-bg:  rgba(255,255,255,0.96);
+    }
+    [data-theme="dark"] {
+      --bg:          #0f1117;
+      --white:       #1a1f2e;
+      --text:        #e8edf5;
+      --text2:       #9aa5b8;
+      --text3:       #5a6478;
+      --border:      rgba(255,255,255,0.1);
+      --shadow:      0 2px 12px rgba(0,0,0,0.4);
+      --shadow-lg:   0 8px 32px rgba(0,0,0,0.6);
+      --teal-light:  rgba(0,184,169,0.15);
+      --teal-glow:   rgba(0,184,169,0.08);
+      --card-bg:     #1a1f2e;
+      --input-bg:    #0f1117;
+      --overlay-bg:  rgba(15,17,23,0.97);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: background 0.3s;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 60px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 18px; font-weight: 700; color: var(--text);
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .logo span { color: var(--teal); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-badge {
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      background: var(--teal-light); color: var(--teal-dark);
+      border: 1px solid rgba(0,184,169,0.3);
+    }
+
+    /* ── Dark mode toggle ── */
+    .dark-toggle {
+      width: 44px; height: 24px; border-radius: 50px;
+      background: var(--border); border: none; cursor: pointer;
+      position: relative; transition: background 0.3s;
+      flex-shrink: 0;
+    }
+    .dark-toggle.on { background: var(--teal); }
+    .dark-toggle::after {
+      content: '';
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff;
+      transition: transform 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .dark-toggle.on::after { transform: translateX(20px); }
+    .toggle-label { font-size: 12px; color: var(--text3); font-weight: 500; }
+
+    /* ── Layout ── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Hero ── */
+    .hero { text-align: center; padding: 60px 0 48px; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 16px; border-radius: 30px;
+      background: var(--teal-light);
+      border: 1px solid rgba(0,184,169,0.25);
+      color: var(--teal-dark); font-size: 12px; font-weight: 600;
+      letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 24px;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--teal); animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.5;transform:scale(1.5);} }
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 44px); font-weight: 800;
+      line-height: 1.15; letter-spacing: -1px; color: var(--text); margin-bottom: 16px;
+    }
+    .hero h1 span { color: var(--teal); }
+    .hero p { color: var(--text2); font-size: 16px; max-width: 560px; margin: 0 auto 40px; }
+
+    /* ── Feature pills ── */
+    .feature-row {
+      display: flex; justify-content: center; gap: 10px;
+      flex-wrap: wrap; margin-bottom: 48px;
+    }
+    .feat-pill {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 50px;
+      background: var(--white); border: 1px solid var(--border);
+      font-size: 13px; font-weight: 500; color: var(--text2);
+      box-shadow: var(--shadow);
+    }
+    .feat-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+
+    /* ── Upload Card ── */
+    .upload-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px; text-align: center;
+      box-shadow: var(--shadow); max-width: 640px; margin: 0 auto;
+    }
+    .upload-card.drag-over { border-color: var(--teal); background: var(--teal-glow); }
+    .upload-icon {
+      width: 72px; height: 72px; border-radius: 18px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--teal-light), rgba(0,184,169,0.08));
+      border: 1px solid rgba(0,184,169,0.2);
+      display: flex; align-items: center; justify-content: center; font-size: 32px;
+    }
+    .upload-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .upload-card > p { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+
+    /* ── Tab switcher (Upload / Camera) ── */
+    .source-tabs {
+      display: flex; gap: 0; margin-bottom: 20px;
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .source-tab {
+      flex: 1; padding: 10px; font-size: 13px; font-weight: 600;
+      background: var(--input-bg); color: var(--text2); border: none;
+      cursor: pointer; transition: all 0.2s; font-family: var(--font);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .source-tab.active { background: var(--teal); color: #fff; }
+    .source-tab:not(.active):hover { background: var(--teal-glow); color: var(--teal-dark); }
+
+    /* ── Drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--border); border-radius: var(--radius);
+      padding: 28px 20px; cursor: pointer; transition: all 0.2s;
+      margin-bottom: 16px; position: relative;
+    }
+    .drop-zone:hover { border-color: var(--teal); background: var(--teal-glow); }
+    .drop-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-zone-text { color: var(--text2); font-size: 14px; pointer-events: none; }
+    .drop-zone-text strong { color: var(--teal); }
+    .drop-zone-text small { display: block; color: var(--text3); font-size: 12px; margin-top: 4px; }
+
+    /* ── Camera section ── */
+    #camera-section { display: none; margin-bottom: 16px; }
+    #camera-section.show { display: block; }
+    #camera-video {
+      width: 100%; border-radius: var(--radius);
+      border: 1px solid var(--border); background: #000;
+      max-height: 280px; object-fit: cover; display: block;
+    }
+    .camera-controls {
+      display: flex; gap: 10px; margin-top: 10px;
+    }
+    .btn-camera {
+      flex: 1; padding: 10px; border-radius: var(--radius);
+      background: var(--teal); color: #fff;
+      font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+      font-family: var(--font); transition: opacity 0.2s;
+    }
+    .btn-camera:hover { opacity: 0.88; }
+    .btn-camera.secondary {
+      background: var(--input-bg); color: var(--text2);
+      border: 1px solid var(--border);
+    }
+    #camera-canvas { display: none; }
+
+    /* ── Image Quality Banner ── */
+    #quality-banner {
+      display: none; margin-bottom: 14px;
+      padding: 10px 14px; border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 500;
+      align-items: center; gap: 8px;
+    }
+    #quality-banner.show { display: flex; }
+    #quality-banner.warn {
+      background: #fffbeb; border: 1px solid #f6d860; color: #92400e;
+    }
+    #quality-banner.error {
+      background: #fff5f5; border: 1px solid #fed7d7; color: #c53030;
+    }
+    #quality-banner.ok {
+      background: #f0fff4; border: 1px solid #c6f6d5; color: #276749;
+    }
+
+    /* ── Preview ── */
+    #preview-wrap { display: none; margin-bottom: 16px; position: relative; }
+    #preview-wrap.show { display: block; }
+    #preview-img {
+      width: 100%; max-height: 260px; object-fit: cover;
+      border-radius: var(--radius); border: 1px solid var(--border); display: block;
+    }
+    .preview-remove {
+      position: absolute; top: 8px; right: 8px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(255,255,255,0.9); border: 1px solid var(--border);
+      color: var(--text2); cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .preview-remove:hover { background: #fff0f3; color: #e53e3e; border-color: #e53e3e; }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px 32px; border-radius: 50px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer; letter-spacing: 0.2px;
+      transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(0,184,169,0.35); margin-top: 4px;
+    }
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+      max-width: 640px; margin: 32px auto 0;
+    }
+    .stat-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px; text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .stat-icon { font-size: 24px; margin-bottom: 8px; }
+    .stat-num { font-size: 18px; font-weight: 800; color: var(--teal); letter-spacing: -0.5px; }
+    .stat-label { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+    /* ── How it works ── */
+    .section { padding: 72px 0; }
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(24px, 3vw, 34px); font-weight: 800;
+      letter-spacing: -0.7px; margin-bottom: 12px; color: var(--text);
+    }
+    .section-sub { color: var(--text2); font-size: 15px; max-width: 480px; }
+    .steps-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+      gap: 16px; margin-top: 40px;
+    }
+    .step-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px 24px;
+      transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .step-card:hover { border-color: var(--teal); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,184,169,0.12); }
+    .step-num {
+      position: absolute; top: -8px; right: 16px;
+      font-size: 64px; font-weight: 800; color: rgba(0,184,169,0.06);
+      line-height: 1; pointer-events: none; user-select: none;
+    }
+    .step-icon { font-size: 28px; margin-bottom: 14px; }
+    .step-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+    .step-desc { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+    /* ── Disclaimer ── */
+    .disclaimer {
+      background: #fffbeb; border: 1px solid #f6d860;
+      border-radius: var(--radius); padding: 16px 20px;
+      display: flex; align-items: flex-start; gap: 12px; margin-top: 40px;
+    }
+    [data-theme="dark"] .disclaimer { background: rgba(246,216,96,0.08); border-color: rgba(246,216,96,0.25); }
+    .disclaimer p { font-size: 13px; color: #744210; }
+    [data-theme="dark"] .disclaimer p { color: #f6d860; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 32px 24px; text-align: center;
+      color: var(--text3); font-size: 13px;
+    }
+    footer strong { color: var(--teal-dark); }
+
+    /* ── Loading overlay ── */
+    #loading-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,184,169,0.96);
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    #loading-overlay.show { display: flex; }
+    .loading-card {
+      background: var(--overlay-bg); border-radius: 20px;
+      padding: 48px 56px; text-align: center;
+      max-width: 440px; width: 90%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.2);
+    }
+    .loading-spinner {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 3px solid var(--teal-light);
+      border-top-color: var(--teal);
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .loading-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
+
+    /* ── REAL-TIME PROGRESS TRACKER ── */
+    .progress-track {
+      display: flex; flex-direction: column; gap: 0;
+      position: relative; text-align: left;
+    }
+    .progress-track::before {
+      content: ''; position: absolute;
+      left: 11px; top: 12px; bottom: 12px; width: 2px;
+      background: var(--border);
+    }
+    .progress-step {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 8px 0; position: relative; z-index: 1;
+      transition: all 0.3s;
+    }
+    .p-icon {
+      width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+      background: var(--border); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--text3);
+      transition: all 0.4s; z-index: 2;
+    }
+    .progress-step.active .p-icon {
+      background: var(--teal); border-color: var(--teal); color: #fff;
+      animation: stepPulse 1s ease infinite;
+    }
+    .progress-step.done .p-icon {
+      background: #38a169; border-color: #38a169; color: #fff;
+      animation: none;
+    }
+    @keyframes stepPulse { 0%,100%{box-shadow:0 0 0 0 rgba(0,184,169,0.4);} 50%{box-shadow:0 0 0 6px rgba(0,184,169,0);} }
+    .p-text { padding-top: 3px; }
+    .p-title { font-size: 13px; font-weight: 600; color: var(--text); transition: color 0.3s; }
+    .progress-step.active .p-title { color: var(--teal-dark); }
+    .progress-step.done  .p-title  { color: #276749; }
+    .p-sub   { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+    /* Timing bar */
+    .timing-bar {
+      height: 3px; background: var(--border); border-radius: 50px;
+      overflow: hidden; margin-top: 20px;
+    }
+    .timing-fill {
+      height: 100%; background: var(--teal);
+      border-radius: 50px; width: 0%;
+      transition: width 0.4s linear;
+    }
+
+    /* ── Error toast ── */
+    #error-toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #fff0f3; border: 1px solid #fed7d7; color: #e53e3e;
+      padding: 12px 20px; border-radius: 50px; font-size: 14px;
+      font-weight: 500; z-index: 2000;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    #error-toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media(max-width:640px){
+      .upload-card { padding: 24px 16px; }
+      .stats-row { grid-template-columns: 1fr; }
+      .hero { padding: 40px 0 32px; }
+      .loading-card { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="/">
+        <div class="logo-icon">🦷</div>
+        <span>Oral</span>Guard AI
+      </a>
+      <div class="nav-right">
+        <span class="nav-badge">Early Cancer Detection</span>
+        <span class="toggle-label" id="theme-label">🌙</span>
+        <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero wrap">
+    <div class="hero-badge">AI-Powered Medical Imaging Analysis</div>
+    <h1>Early Detection of <span>Oral Risk</span><br>Analyser Using  AI</h1>
+    <p>Upload or capture an oral cavity image for AI-powered analysis using deep learning with Grad-CAM visualization to identify and highlight potential areas of concern.</p>
+
+    <div class="feature-row">
+      <div class="feat-pill"><span class="dot"></span> Severity Assessment</div>
+      <div class="feat-pill"><span class="dot"></span> Risk Analysis</div>
+      <div class="feat-pill"><span class="dot"></span> Grad-CAM Heatmap</div>
+      <div class="feat-pill"><span class="dot"></span> Clinical Report</div>
+      <div class="feat-pill"><span class="dot"></span> Camera Capture</div>
+    </div>
+
+    <!-- Upload card -->
+    <div class="upload-card" id="upload-card">
+      <div class="upload-icon">🦷</div>
+      <h2>Upload or Capture Oral Cavity Image</h2>
+      <p>Use the tabs below to upload a file or take a photo directly from your camera.</p>
+
+      <!-- ── Tab switcher ── -->
+      <div class="source-tabs">
+        <button class="source-tab active" id="tab-upload" onclick="switchTab('upload')">
+          📁 Upload File
+        </button>
+        <button class="source-tab" id="tab-camera" onclick="switchTab('camera')">
+          📷 Use Camera
+        </button>
+      </div>
+
+      <!-- ── Image quality banner ── -->
+      <div id="quality-banner">
+        <span id="quality-icon">⚠️</span>
+        <span id="quality-msg">Image quality warning</span>
+      </div>
+
+      <!-- ── Preview ── -->
+      <div id="preview-wrap">
+        <img id="preview-img" src="" alt="Preview" />
+        <button class="preview-remove" id="remove-btn" title="Remove">✕</button>
+      </div>
+
+      <!-- ── Upload panel ── -->
+      <div id="upload-panel">
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/heic" />
+          <div class="drop-zone-text">
+            <strong>Drag & drop</strong> your image here, or click to browse
+            <small>JPG · PNG · WEBP · HEIC — max 10 MB</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Camera panel ── -->
+      <div id="camera-section">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <canvas id="camera-canvas"></canvas>
+        <div class="camera-controls">
+          <button class="btn-camera" id="capture-btn" onclick="capturePhoto()">📸 Capture Photo</button>
+          <button class="btn-camera secondary" id="stop-camera-btn" onclick="stopCamera()">✕ Close Camera</button>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="analyze-btn" disabled>
+        🔬 Analyse Image
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-num">Severity<br>Assessment</div>
+        <div class="stat-label">Comprehensive scoring from mild to critical</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-num">Risk<br>Analysis</div>
+        <div class="stat-label">Probability-based cancer risk estimation</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-num">Grad-CAM<br>Heatmap</div>
+        <div class="stat-label">Visual explanation of AI decision</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-label">Process</div>
+      <div class="section-title">How OralGuard AI Works</div>
+      <div class="section-sub">Our pipeline combines computer vision preprocessing with a trained CNN and explainable AI visualization to deliver accurate, interpretable results.</div>
+      <div class="steps-grid">
+        <div class="step-card"><span class="step-num">01</span>
+          <div class="step-icon">📸</div>
+          <div class="step-title">Image Upload or Capture</div>
+          <div class="step-desc">Upload a file or take a photo directly. The quality checker ensures the image is clear enough for accurate analysis.</div>
+        </div>
+        <div class="step-card"><span class="step-num">02</span>
+          <div class="step-icon">⚙️</div>
+          <div class="step-title">Preprocessing</div>
+          <div class="step-desc">OpenCV resizes and normalizes the image to 224×224 pixels with centre crop for consistent model input.</div>
+        </div>
+        <div class="step-card"><span class="step-num">03</span>
+          <div class="step-icon">🧬</div>
+          <div class="step-title">CNN Inference</div>
+          <div class="step-desc">MobileNetV2 transfer-learning model classifies tissue as cancerous or normal with probability scores.</div>
+        </div>
+        <div class="step-card"><span class="step-num">04</span>
+          <div class="step-icon">🔥</div>
+          <div class="step-title">Grad-CAM Heatmap</div>
+          <div class="step-desc">Gradient-weighted Class Activation Mapping highlights the regions that influenced the prediction.</div>
+        </div>
+        <div class="step-card"><span class="step-num">05</span>
+          <div class="step-icon">📋</div>
+          <div class="step-title">Clinical Report</div>
+          <div class="step-desc">A structured report delivers severity level, risk factors, lesion analysis, and actionable recommendations.</div>
+        </div>
+        <div class="step-card"><span class="step-num">06</span>
+          <div class="step-icon">💾</div>
+          <div class="step-title">Record Stored</div>
+          <div class="step-desc">Every analysis is persisted with full metadata for historical review and clinical audit trails.</div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        <span style="font-size:18px;flex-shrink:0;margin-top:1px">⚠️</span>
+        <p><strong>Disclaimer:</strong> This tool is for screening purposes only and is <strong>not a substitute for professional medical diagnosis</strong>. All results must be reviewed by a qualified oral health specialist before any clinical decision is made.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 <strong>OralGuard AI</strong> · Final Year Project · Built with TensorFlow, OpenCV &amp; Django</p>
+  </footer>
+
+  <!-- ── Loading overlay with real-time progress tracker ── -->
+  <div id="loading-overlay">
+    <div class="loading-card">
+      <div class="loading-spinner"></div>
+      <div class="loading-title">🔬 Analysing Image</div>
+      <div class="loading-sub">Our AI is examining your oral cavity image for suspicious patterns.</div>
+
+      <div class="progress-track">
+        <div class="progress-step" id="ps-1">
+          <div class="p-icon" id="pi-1">1</div>
+          <div class="p-text">
+            <div class="p-title">Preprocessing &amp; resizing</div>
+            <div class="p-sub">Centre crop → 224×224 px normalisation</div>
+          </div>
+        </div>
+        <div class="progress-step" id="ps-2">
+          <div class="p-icon" id="pi-2">2</div>
+          <div class="p-text">
+            <div class="p-title">Running CNN inference</div>
+            <div class="p-sub">MobileNetV2 classifying tissue type</div>
+          </div>
+        </div>
+        <div class="progress-step" id="ps-3">
+          <div class="p-icon" id="pi-3">3</div>
+          <div class="p-text">
+            <div class="p-title">Generating Grad-CAM heatmap</div>
+            <div class="p-sub">Computing gradient activation maps</div>
+          </div>
+        </div>
+        <div class="progress-step" id="ps-4">
+          <div class="p-icon" id="pi-4">4</div>
+          <div class="p-text">
+            <div class="p-title">Building clinical report</div>
+            <div class="p-sub">Assembling risk factors &amp; recommendations</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timing-bar"><div class="timing-fill" id="timing-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- Error toast -->
+  <div id="error-toast">❌ <span id="error-msg">An error occurred</span></div>
+
+  <script>
+    const API_URL = '/api/analyze/';
+
+    // Elements
+    const fileInput      = document.getElementById('file-input');
+    const dropZone       = document.getElementById('drop-zone');
+    const previewWrap    = document.getElementById('preview-wrap');
+    const previewImg     = document.getElementById('preview-img');
+    const removeBtn      = document.getElementById('remove-btn');
+    const analyzeBtn     = document.getElementById('analyze-btn');
+    const uploadCard     = document.getElementById('upload-card');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const errorToast     = document.getElementById('error-toast');
+    const errorMsg       = document.getElementById('error-msg');
+    const qualityBanner  = document.getElementById('quality-banner');
+    const qualityMsg     = document.getElementById('quality-msg');
+    const qualityIcon    = document.getElementById('quality-icon');
+    const cameraVideo    = document.getElementById('camera-video');
+    const cameraCanvas   = document.getElementById('camera-canvas');
+    const uploadPanel    = document.getElementById('upload-panel');
+    const cameraSection  = document.getElementById('camera-section');
+
+    let selectedFile  = null;
+    let cameraStream  = null;
+
+    // ── Dark mode ────────────────────────────────────────────────────
+    const toggle    = document.getElementById('dark-toggle');
+    const themeLabel= document.getElementById('theme-label');
+    const saved     = localStorage.getItem('oralguard-theme') || 'light';
+    setTheme(saved);
+
+    toggle.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme');
+      setTheme(cur === 'dark' ? 'light' : 'dark');
+    });
+
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('oralguard-theme', t);
+      toggle.classList.toggle('on', t === 'dark');
+      themeLabel.textContent = t === 'dark' ? '☀️' : '🌙';
+    }
+
+    // ── Tab switcher ─────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+      document.getElementById('tab-camera').classList.toggle('active', tab === 'camera');
+
+      if (tab === 'camera') {
+        uploadPanel.style.display  = 'none';
+        cameraSection.classList.add('show');
+        startCamera();
+      } else {
+        uploadPanel.style.display  = '';
+        cameraSection.classList.remove('show');
+        stopCamera();
+      }
+    }
+
+    // ── Camera ───────────────────────────────────────────────────────
+    async function startCamera() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        cameraVideo.srcObject = cameraStream;
+      } catch (err) {
+        showError('Camera access denied. Please allow camera permissions or use file upload.');
+        switchTab('upload');
+      }
+    }
+
+    function stopCamera() {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
+      cameraVideo.srcObject = null;
+    }
+
+    function capturePhoto() {
+      if (!cameraStream) return;
+      const w = cameraVideo.videoWidth  || 640;
+      const h = cameraVideo.videoHeight || 480;
+      cameraCanvas.width  = w;
+      cameraCanvas.height = h;
+      cameraCanvas.getContext('2d').drawImage(cameraVideo, 0, 0, w, h);
+
+      cameraCanvas.toBlob(blob => {
+        const file = new File([blob], 'camera_capture.jpg', { type: 'image/jpeg' });
+        handleFile(file);
+        stopCamera();
+        switchTab('upload');   // switch back to show preview in upload tab
+        uploadPanel.style.display = 'none';
+      }, 'image/jpeg', 0.95);
+    }
+
+    // ── File handling ────────────────────────────────────────────────
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+    uploadCard.addEventListener('dragover', e => { e.preventDefault(); uploadCard.classList.add('drag-over'); });
+    uploadCard.addEventListener('dragleave', () => uploadCard.classList.remove('drag-over'));
+    uploadCard.addEventListener('drop', e => {
+      e.preventDefault(); uploadCard.classList.remove('drag-over');
+      if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) { showError('Please select a valid image file.'); return; }
+      if (file.size > 10 * 1024 * 1024)   { showError('Image must be under 10 MB.'); return; }
+      selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        previewImg.src = e.target.result;
+        previewWrap.classList.add('show');
+        dropZone.style.display = 'none';
+        analyzeBtn.disabled = true;  // wait for quality check
+        checkImageQuality(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    removeBtn.addEventListener('click', () => {
+      selectedFile = null;
+      previewWrap.classList.remove('show');
+      dropZone.style.display = '';
+      analyzeBtn.disabled = true;
+      fileInput.value = '';
+      hideQualityBanner();
+    });
+
+    // ── Image Quality Checker ────────────────────────────────────────
+    // Checks brightness and blurriness using canvas pixel analysis
+    function checkImageQuality(dataUrl) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size   = 100;  // downsample for speed
+        canvas.width = canvas.height = size;
+        const ctx    = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, size, size);
+        const pixels = ctx.getImageData(0, 0, size, size).data;
+
+        // Brightness: average luminance
+        let totalLum = 0;
+        for (let i = 0; i < pixels.length; i += 4) {
+          totalLum += 0.299 * pixels[i] + 0.587 * pixels[i+1] + 0.114 * pixels[i+2];
+        }
+        const avgBrightness = totalLum / (size * size);
+
+        // Blurriness: Laplacian variance proxy via edge detection on grayscale
+        const gray = [];
+        for (let i = 0; i < pixels.length; i += 4) {
+          gray.push(0.299 * pixels[i] + 0.587 * pixels[i+1] + 0.114 * pixels[i+2]);
+        }
+        let lapVar = 0, lapMean = 0;
+        const lap = [];
+        for (let y = 1; y < size - 1; y++) {
+          for (let x = 1; x < size - 1; x++) {
+            const idx = y * size + x;
+            const v   = -gray[idx-size] - gray[idx+size] - gray[idx-1] - gray[idx+1] + 4 * gray[idx];
+            lap.push(v);
+            lapMean += v;
+          }
+        }
+        lapMean /= lap.length;
+        lap.forEach(v => { lapVar += (v - lapMean) ** 2; });
+        lapVar /= lap.length;
+
+        // Thresholds
+        const tooDark   = avgBrightness < 40;
+        const tooBright = avgBrightness > 220;
+        const tooBlurry = lapVar < 20;
+
+        if (tooDark) {
+          showQuality('error', '🌑', 'Image is too dark — please use better lighting or a brighter photo.');
+          analyzeBtn.disabled = false;  // allow but warn
+        } else if (tooBright) {
+          showQuality('warn', '☀️', 'Image may be overexposed — results could be less accurate.');
+          analyzeBtn.disabled = false;
+        } else if (tooBlurry) {
+          showQuality('warn', '🔍', 'Image appears blurry — for best results, use a sharper photo.');
+          analyzeBtn.disabled = false;
+        } else {
+          showQuality('ok', '✅', 'Image quality looks good — ready to analyse.');
+          analyzeBtn.disabled = false;
+        }
+      };
+      img.src = dataUrl;
+    }
+
+    function showQuality(type, icon, msg) {
+      qualityBanner.className = 'show ' + type;
+      qualityIcon.textContent = icon;
+      qualityMsg.textContent  = msg;
+    }
+    function hideQualityBanner() {
+      qualityBanner.className = '';
+    }
+
+    // ── Analyse ──────────────────────────────────────────────────────
+    analyzeBtn.addEventListener('click', async () => {
+      if (!selectedFile) return;
+      loadingOverlay.classList.add('show');
+      startProgressTracker();
+
+      const fd = new FormData();
+      fd.append('image', selectedFile);
+
+      try {
+        const res  = await fetch(API_URL, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.details || data.error || 'Server error');
+        sessionStorage.setItem('oralguard_result', JSON.stringify(data));
+        window.location.href = '/results/';
+      } catch (err) {
+        loadingOverlay.classList.remove('show');
+        resetProgressTracker();
+        showError(err.message || 'Failed to analyse image. Is the backend running?');
+      }
+    });
+
+    // ── Real-time Progress Tracker ───────────────────────────────────
+    let progressTimer = null;
+
+    function startProgressTracker() {
+      resetProgressTracker();
+      const steps   = [1, 2, 3, 4];
+      const delays  = [0, 900, 1900, 3000];  // ms when each step activates
+      const timeFill= document.getElementById('timing-fill');
+
+      // Animate timing bar
+      let pct = 0;
+      const barTimer = setInterval(() => {
+        pct = Math.min(pct + 1.2, 95);
+        timeFill.style.width = pct + '%';
+      }, 100);
+
+      steps.forEach((n, i) => {
+        setTimeout(() => {
+          // Mark previous as done
+          if (i > 0) {
+            const prev = document.getElementById('ps-' + steps[i-1]);
+            const prevIcon = document.getElementById('pi-' + steps[i-1]);
+            prev.classList.remove('active');
+            prev.classList.add('done');
+            prevIcon.textContent = '✓';
+          }
+          // Mark current as active
+          const cur = document.getElementById('ps-' + n);
+          const curIcon = document.getElementById('pi-' + n);
+          cur.classList.add('active');
+          curIcon.textContent = n;
+        }, delays[i]);
+      });
+
+      progressTimer = barTimer;
+    }
+
+    function resetProgressTracker() {
+      if (progressTimer) { clearInterval(progressTimer); progressTimer = null; }
+      document.getElementById('timing-fill').style.width = '0%';
+      [1,2,3,4].forEach(n => {
+        const s = document.getElementById('ps-' + n);
+        const i = document.getElementById('pi-' + n);
+        s.classList.remove('active', 'done');
+        i.textContent = n;
+      });
+    }
+
+    // ── Error toast ──────────────────────────────────────────────────
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorToast.classList.add('show');
+      setTimeout(() => errorToast.classList.remove('show'), 4500);
+    }
+  </script>
+</body>
+</html>

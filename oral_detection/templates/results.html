@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OralGuard AI — Analysis Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --teal:        #00b8a9;
+      --teal-dark:   #008f83;
+      --teal-light:  #e0f7f5;
+      --bg:          #f4f7fb;
+      --white:       #ffffff;
+      --text:        #1a2332;
+      --text2:       #4a5568;
+      --text3:       #8a96a8;
+      --border:      #e2e8f0;
+      --shadow:      0 2px 12px rgba(0,0,0,0.07);
+      --radius:      12px;
+      --radius-sm:   8px;
+      --font:        'Inter', sans-serif;
+      --red:         #e53e3e;
+      --red-light:   #fff5f5;
+      --red-border:  #fed7d7;
+      --green:       #38a169;
+      --green-light: #f0fff4;
+      --green-border:#c6f6d5;
+      --amber:       #d97706;
+      --amber-light: #fffbeb;
+      --orange:      #dd6b20;
+      --card-bg:     #ffffff;
+      --input-bg:    #f7fafc;
+    }
+    [data-theme="dark"] {
+      --bg:          #0f1117;
+      --white:       #1a1f2e;
+      --text:        #e8edf5;
+      --text2:       #9aa5b8;
+      --text3:       #5a6478;
+      --border:      rgba(255,255,255,0.1);
+      --shadow:      0 2px 12px rgba(0,0,0,0.4);
+      --teal-light:  rgba(0,184,169,0.15);
+      --red-light:   rgba(229,62,62,0.1);
+      --red-border:  rgba(229,62,62,0.25);
+      --green-light: rgba(56,161,105,0.1);
+      --green-border:rgba(56,161,105,0.25);
+      --amber-light: rgba(217,119,6,0.1);
+      --card-bg:     #1a1f2e;
+      --input-bg:    #0f1117;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: var(--font); font-size: 15px;
+      line-height: 1.65; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 24px; position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06); transition: background 0.3s;
+    }
+    .nav-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between; height: 60px;
+    }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 18px; font-weight: 700; color: var(--text); text-decoration: none;
+    }
+    .logo-icon {
+      width: 34px; height: 34px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .logo span { color: var(--teal); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 18px; border-radius: 50px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text2); font-size: 13px; font-weight: 500;
+      text-decoration: none; transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-back:hover { border-color: var(--teal); color: var(--teal-dark); }
+
+    /* Dark toggle */
+    .dark-toggle {
+      width: 44px; height: 24px; border-radius: 50px;
+      background: var(--border); border: none; cursor: pointer;
+      position: relative; transition: background 0.3s; flex-shrink: 0;
+    }
+    .dark-toggle.on { background: var(--teal); }
+    .dark-toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%; background: #fff;
+      transition: transform 0.3s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .dark-toggle.on::after { transform: translateX(20px); }
+
+    /* ══════════════════════════════════════════
+       PDF DOWNLOAD BUTTON + PANEL  (NEW)
+    ══════════════════════════════════════════ */
+
+    /* PDF button in nav */
+    .btn-pdf-nav {
+      display: none;
+      align-items: center; gap: 7px;
+      padding: 7px 16px; border-radius: 50px;
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: #fff; font-size: 12px; font-weight: 600;
+      border: none; cursor: pointer; font-family: var(--font);
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 2px 10px rgba(229,62,62,0.35);
+    }
+    .btn-pdf-nav.visible { display: inline-flex; }
+    .btn-pdf-nav:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* PDF preview modal */
+    #pdf-modal {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    #pdf-modal.show { display: flex; }
+    .pdf-modal-box {
+      background: var(--white); border-radius: 16px;
+      padding: 30px; width: 90%; max-width: 460px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease both;
+    }
+    .pdf-modal-title {
+      font-size: 18px; font-weight: 700; color: var(--text);
+      margin-bottom: 6px;
+    }
+    .pdf-modal-sub {
+      font-size: 13px; color: var(--text2); margin-bottom: 18px; line-height: 1.6;
+    }
+    .pdf-includes {
+      display: flex; flex-direction: column; gap: 8px; margin-bottom: 22px;
+    }
+    .pdf-include-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: var(--text2);
+      padding: 9px 12px; background: var(--input-bg);
+      border-radius: var(--radius-sm); border: 1px solid var(--border);
+    }
+    .pdf-include-item .pi { font-size: 16px; flex-shrink: 0; }
+    .pdf-modal-btns { display: flex; gap: 10px; }
+    .btn-pdf-confirm {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border-radius: 50px;
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: #fff; font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer; font-family: var(--font);
+      transition: opacity 0.2s; box-shadow: 0 3px 12px rgba(229,62,62,0.3);
+    }
+    .btn-pdf-confirm:hover { opacity: 0.9; }
+    .btn-pdf-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-modal-cancel {
+      flex: 1; padding: 12px; border-radius: 50px;
+      background: var(--input-bg); border: 1px solid var(--border);
+      color: var(--text2); font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: var(--font); transition: all 0.2s;
+    }
+    .btn-modal-cancel:hover { border-color: var(--teal); color: var(--teal-dark); }
+
+    /* PDF toast notification */
+    #pdf-toast {
+      position: fixed; bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      padding: 12px 22px; border-radius: 50px;
+      font-size: 14px; font-weight: 500; z-index: 2000;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      white-space: nowrap;
+    }
+    #pdf-toast.show  { transform: translateX(-50%) translateY(0); }
+    #pdf-toast.ok    { background: #f0fff4; border: 1px solid #c6f6d5; color: #276749; }
+    #pdf-toast.fail  { background: #fff5f5; border: 1px solid #fed7d7; color: #c53030; }
+
+    /* PDF download button inside page (bottom action row) */
+    .btn-pdf-page {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 32px; border-radius: 50px;
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 4px 16px rgba(229,62,62,0.3);
+    }
+    .btn-pdf-page:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── Layout ── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .page { padding: 40px 0 80px; }
+
+    @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+    /* ── CRITICAL AUTO-FLAG BANNER ── */
+    .critical-flag {
+      display: none;
+      background: linear-gradient(135deg, #fff0f0, #fff5f5);
+      border: 2px solid var(--red);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.4s ease both, criticalPulse 2s ease-in-out 3;
+    }
+    .critical-flag.show { display: flex; align-items: flex-start; gap: 16px; }
+    [data-theme="dark"] .critical-flag { background: rgba(229,62,62,0.1); }
+    @keyframes criticalPulse {
+      0%,100%{ box-shadow: 0 0 0 0 rgba(229,62,62,0); }
+      50%    { box-shadow: 0 0 0 8px rgba(229,62,62,0.15); }
+    }
+    .flag-icon { font-size: 36px; flex-shrink: 0; animation: flagShake 0.5s ease 2; }
+    @keyframes flagShake {
+      0%,100%{transform:rotate(0)} 25%{transform:rotate(-8deg)} 75%{transform:rotate(8deg)}
+    }
+    .flag-title { font-size: 17px; font-weight: 800; color: var(--red); margin-bottom: 4px; }
+    .flag-desc  { font-size: 13px; color: var(--text2); line-height: 1.6; }
+    .flag-action {
+      margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: 50px;
+      background: var(--red); color: #fff; font-size: 13px; font-weight: 600;
+      border: none; cursor: pointer; font-family: var(--font);
+      text-decoration: none; transition: opacity 0.2s;
+    }
+    .flag-action:hover { opacity: 0.88; }
+
+    /* ── Detection Banner ── */
+    .detection-banner {
+      border-radius: var(--radius); padding: 24px 28px; margin-bottom: 20px;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px; animation: fadeIn 0.4s ease both;
+    }
+    .detection-banner.positive { background: var(--red-light);   border: 1px solid var(--red-border); }
+    .detection-banner.negative { background: var(--green-light); border: 1px solid var(--green-border); }
+    .detection-banner.low-risk { background: var(--teal-light);  border: 1px solid rgba(0,184,169,0.3); }
+    .detection-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+    .detection-result { font-size: 22px; font-weight: 800; margin-bottom: 6px; line-height: 1.1; }
+    .detection-result.positive { color: var(--red); }
+    .detection-result.negative { color: var(--green); }
+    .detection-result.low-risk  { color: var(--teal-dark); }
+    .detection-desc { font-size: 13px; color: var(--text2); max-width: 680px; line-height: 1.6; }
+
+    .badge { display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .badge-immediate { background: #fff0f3;           color: var(--red);    border: 1px solid var(--red-border); }
+    .badge-urgent    { background: #fff7ed;           color: var(--orange); border: 1px solid #fed7aa; }
+    .badge-soon      { background: var(--amber-light);color: var(--amber);  border: 1px solid #fde68a; }
+    .badge-routine   { background: var(--green-light);color: var(--green);  border: 1px solid var(--green-border); }
+    .badge-low       { background: var(--teal-light); color: var(--teal-dark); border: 1px solid rgba(0,184,169,0.3); }
+
+    /* ── Grid ── */
+    .results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .results-grid.full { grid-template-columns: 1fr; }
+    @media(max-width:720px){ .results-grid { grid-template-columns: 1fr; } }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+      box-shadow: var(--shadow); animation: fadeIn 0.4s ease both;
+      transition: background 0.3s;
+    }
+    .card-title { font-size: 14px; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; color: var(--text); }
+
+    /* ── Score ── */
+    .score-label-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .score-row  { display: flex; align-items: baseline; gap: 6px; margin-bottom: 4px; }
+    .score-val  { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+    .score-unit { font-size: 13px; color: var(--text2); }
+    .score-desc { font-size: 12px; color: var(--text2); margin-bottom: 12px; }
+    .meter-bar  { height: 7px; background: var(--input-bg); border-radius: 50px; overflow: hidden; margin-bottom: 14px; }
+    .meter-fill { height: 100%; border-radius: 50px; transition: width 1.2s cubic-bezier(0.25,0.46,0.45,0.94); }
+    .meter-fill.low      { background: #38a169; }
+    .meter-fill.moderate { background: #d97706; }
+    .meter-fill.high     { background: #dd6b20; }
+    .meter-fill.critical { background: #e53e3e; }
+    .prob-row   { display: flex; gap: 12px; margin-top: 4px; }
+    .prob-block { flex:1; background: var(--input-bg); border-radius: var(--radius-sm); padding: 14px; text-align: center; border: 1px solid var(--border); }
+    .prob-val   { font-size: 20px; font-weight: 800; line-height: 1; }
+    .prob-lbl   { font-size: 10px; color: var(--text3); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── Risk factors ── */
+    .factor-list { display: flex; flex-direction: column; gap: 8px; }
+    .factor-item { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; background: var(--input-bg); border-radius: var(--radius-sm); font-size: 13px; color: var(--text2); border: 1px solid var(--border); }
+    .factor-dot  { width: 7px; height: 7px; border-radius: 50%; background: var(--red); flex-shrink: 0; margin-top: 5px; }
+    .factor-dot.ok { background: var(--green); }
+
+    /* ── Lesion table ── */
+    .lesion-table { width: 100%; border-collapse: collapse; }
+    .lesion-table tr { border-bottom: 1px solid var(--border); }
+    .lesion-table tr:last-child { border-bottom: none; }
+    .lesion-table td { padding: 10px 8px; font-size: 13px; }
+    .lesion-table td:first-child { color: var(--text2); width: 38%; font-weight: 500; }
+    .lesion-table td:last-child  { color: var(--text); font-weight: 600; }
+
+    /* ── Recommendations ── */
+    .rec-list { display: flex; flex-direction: column; gap: 10px; }
+    .rec-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--input-bg); border: 1px solid var(--border); }
+    .rec-num  { width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .rec-num.urgent { background: linear-gradient(135deg, var(--red), #c53030); }
+    .rec-text { font-size: 13px; color: var(--text2); line-height: 1.55; }
+
+    /* ── Grad-CAM ── */
+    .gradcam-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px; animation: fadeIn 0.4s ease both; }
+    .gradcam-tabs { display: flex; gap: 0; margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; width: fit-content; }
+    .gradcam-tab { padding: 7px 16px; font-size: 12px; font-weight: 600; background: var(--input-bg); color: var(--text2); border: none; cursor: pointer; font-family: var(--font); transition: all 0.2s; }
+    .gradcam-tab.active { background: var(--teal); color: #fff; }
+    .gradcam-sidebyside { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media(max-width:560px){ .gradcam-sidebyside { grid-template-columns: 1fr; } }
+    .gradcam-img-wrap { border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); position: relative; background: var(--input-bg); aspect-ratio: 4/3; }
+    .gradcam-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .gradcam-label { position: absolute; bottom: 8px; left: 8px; background: rgba(0,0,0,0.65); padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 500; color: #fff; }
+    .gradcam-placeholder { width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);font-size:13px;gap:8px;padding:20px;text-align:center; }
+    .gradcam-placeholder .pi { font-size: 36px; }
+    .slider-view { display: none; }
+    .slider-view.show { display: block; }
+    .compare-container { position: relative; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); aspect-ratio: 4/3; cursor: col-resize; user-select: none; touch-action: none; }
+    .compare-container img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .compare-overlay { position: absolute; top: 0; left: 0; height: 100%; overflow: hidden; transition: width 0s; }
+    .compare-overlay img { width: 100%; }
+    .compare-handle { position: absolute; top: 0; width: 3px; height: 100%; background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.5); cursor: col-resize; transform: translateX(-50%); }
+    .compare-handle::before { content: ''; position: absolute; left: 50%; transform: translateX(-50%); width: 36px; height: 36px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.25); top: calc(50% - 18px); }
+    .compare-handle-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 16px; pointer-events: none; z-index: 2; }
+    .compare-label-l, .compare-label-r { position: absolute; bottom: 8px; background: rgba(0,0,0,0.65); padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 500; color: #fff; pointer-events: none; z-index: 3; }
+    .compare-label-l { left: 8px; }
+    .compare-label-r { right: 8px; }
+    .slider-hint { font-size: 12px; color: var(--text3); text-align: center; margin-top: 8px; }
+    .gradcam-legend { display: flex; gap: 16px; flex-wrap: wrap; padding: 10px 14px; background: var(--input-bg); border-radius: var(--radius-sm); border: 1px solid var(--border); margin-top: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── Hospital Finder ── */
+    .hospital-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 16px; animation: fadeIn 0.4s ease both; }
+    .btn-locate { display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; border-radius: 50px; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: #fff; font-size: 13px; font-weight: 600; border: none; cursor: pointer; font-family: var(--font); transition: opacity 0.2s; box-shadow: 0 3px 12px rgba(0,184,169,0.3); }
+    .btn-locate:hover { opacity: 0.88; }
+    .btn-locate:disabled { opacity: 0.5; cursor: not-allowed; }
+    #hospital-status { font-size: 13px; color: var(--text3); margin: 12px 0 0; }
+    .hospital-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+    .hospital-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 14px 16px; background: var(--input-bg); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    .hospital-info { flex: 1; min-width: 0; }
+    .hospital-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .hospital-addr { font-size: 12px; color: var(--text3); }
+    .btn-map { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border-radius: 50px; border: 1px solid var(--border); background: var(--white); color: var(--text2); font-size: 12px; font-weight: 500; text-decoration: none; transition: all 0.2s; white-space: nowrap; cursor: pointer; }
+    .btn-map:hover { border-color: var(--teal); color: var(--teal-dark); }
+
+    /* ── Meta ── */
+    .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 10px; }
+    .meta-item  { background: var(--input-bg); border-radius: var(--radius-sm); padding: 14px; border: 1px solid var(--border); }
+    .meta-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .meta-val   { font-size: 14px; font-weight: 700; color: var(--text); }
+
+    /* ── Disclaimer ── */
+    .disclaimer { background: #fffbeb; border: 1px solid #f6d860; border-radius: var(--radius); padding: 14px 18px; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 16px; }
+    [data-theme="dark"] .disclaimer { background: rgba(246,216,96,0.08); border-color: rgba(246,216,96,0.25); }
+    .disclaimer p { font-size: 13px; color: #744210; }
+    [data-theme="dark"] .disclaimer p { color: #f6d860; }
+
+    /* ── Action row (Scan Again + PDF) ── */
+    .action-row { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 36px; border-radius: 50px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff; font-family: var(--font); font-size: 15px; font-weight: 600;
+      border: none; cursor: pointer; text-decoration: none;
+      transition: opacity 0.2s, transform 0.2s;
+      box-shadow: 0 4px 16px rgba(0,184,169,0.3);
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── No data ── */
+    #no-data { text-align: center; padding: 100px 24px; display: none; }
+    #no-data.show { display: block; }
+    #no-data h2 { font-size: 26px; font-weight: 700; margin-bottom: 10px; }
+    #no-data p  { color: var(--text2); margin-bottom: 28px; }
+
+    @media print {
+      nav, .btn-back, .action-row, .hospital-card, #critical-flag,
+      #pdf-modal, #pdf-toast { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="/">
+        <div class="logo-icon">🦷</div>
+        <span>Oral</span>Guard AI
+      </a>
+      <div class="nav-right">
+        <a class="btn-back" href="/">← New Scan</a>
+        <!-- PDF button in nav (shown after results load) -->
+        <button class="btn-pdf-nav" id="nav-pdf-btn" onclick="openPdfModal()">
+          📄 Download Report
+        </button>
+        <button class="dark-toggle" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode"></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap page">
+    <div id="no-data">
+      <div style="font-size:56px;margin-bottom:16px">🔍</div>
+      <h2>No Analysis Found</h2>
+      <p>Please upload an oral cavity image on the home page to run a diagnosis.</p>
+      <a class="btn-primary" href="/">← Go Back &amp; Scan</a>
+    </div>
+    <div id="results-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PDF PREVIEW MODAL  (NEW)
+  ══════════════════════════════════════════ -->
+  <div id="pdf-modal">
+    <div class="pdf-modal-box">
+      <div class="pdf-modal-title">📄 Download Clinical Report</div>
+      <div class="pdf-modal-sub">
+        Your PDF will be generated and downloaded instantly. It includes:
+      </div>
+      <div class="pdf-includes">
+        <div class="pdf-include-item"><span class="pi">🖼️</span> Original image + Grad-CAM heatmap side by side</div>
+        <div class="pdf-include-item"><span class="pi">⚡</span> Severity score &amp; confidence bar chart</div>
+        <div class="pdf-include-item"><span class="pi">🔬</span> Full lesion analysis table</div>
+        <div class="pdf-include-item"><span class="pi">📋</span> Clinical recommendations with urgency level</div>
+        <div class="pdf-include-item"><span class="pi">⚠️</span> Medical disclaimer &amp; analysis metadata</div>
+      </div>
+      <div class="pdf-modal-btns">
+        <button class="btn-modal-cancel" onclick="closePdfModal()">Cancel</button>
+        <button class="btn-pdf-confirm" id="pdf-confirm-btn" onclick="downloadPdf()">
+          📥 Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF status toast -->
+  <div id="pdf-toast"></div>
+
+  <script>
+    // ── Dark mode ─────────────────────────────────────────────────────
+    const toggle = document.getElementById('dark-toggle');
+    const saved  = localStorage.getItem('oralguard-theme') || 'light';
+    setTheme(saved);
+    toggle.addEventListener('click', () => {
+      setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+    function setTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('oralguard-theme', t);
+      toggle.classList.toggle('on', t === 'dark');
+    }
+
+    // ── Load data ─────────────────────────────────────────────────────
+    const data = JSON.parse(sessionStorage.getItem('oralguard_result') || 'null');
+    if (!data) {
+      document.getElementById('no-data').classList.add('show');
+    } else {
+      renderResults(data);
+      // Show PDF button in nav once results are loaded
+      document.getElementById('nav-pdf-btn').classList.add('visible');
+    }
+
+    // ══════════════════════════════════════════
+    // PDF DOWNLOAD FUNCTIONS  (NEW)
+    // ══════════════════════════════════════════
+
+    function openPdfModal() {
+      document.getElementById('pdf-modal').classList.add('show');
+    }
+
+    function closePdfModal() {
+      document.getElementById('pdf-modal').classList.remove('show');
+    }
+
+    // Close modal when clicking backdrop
+    document.getElementById('pdf-modal').addEventListener('click', function(e) {
+      if (e.target === this) closePdfModal();
+    });
+
+    async function downloadPdf() {
+      if (!data || !data.analysis_id) {
+        showPdfToast('fail', '❌ No analysis ID — please re-run the scan.');
+        closePdfModal();
+        return;
+      }
+
+      const btn = document.getElementById('pdf-confirm-btn');
+      btn.textContent = '⏳ Generating...';
+      btn.disabled    = true;
+
+      try {
+        // Call Django backend PDF endpoint
+        const res = await fetch('/api/analyze/' + data.analysis_id + '/pdf/');
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error || 'Server error ' + res.status);
+        }
+
+        // Trigger browser file download
+        const blob     = await res.blob();
+        const blobUrl  = URL.createObjectURL(blob);
+        const anchor   = document.createElement('a');
+        anchor.href    = blobUrl;
+        anchor.download = 'OralGuard_Report_' + data.analysis_id.slice(0, 8) + '.pdf';
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(blobUrl);
+
+        closePdfModal();
+        showPdfToast('ok', '✅ PDF report downloaded successfully!');
+
+      } catch (err) {
+        closePdfModal();
+        showPdfToast('fail', '❌ ' + (err.message || 'PDF generation failed'));
+      } finally {
+        btn.textContent = '📥 Download PDF';
+        btn.disabled    = false;
+      }
+    }
+
+    function showPdfToast(type, msg) {
+      const t = document.getElementById('pdf-toast');
+      t.textContent = msg;
+      t.className   = 'show ' + type;
+      setTimeout(() => { t.className = type; }, 4500);
+    }
+
+    // ── Render results ────────────────────────────────────────────────
+    function renderResults(d) {
+      const container  = document.getElementById('results-container');
+      const isPositive = d.detection_result === 'positive';
+      const rl         = (d.risk_level || 'low').toLowerCase();
+      const urgency    = d.urgency || 'Routine';
+      const isCritical = d.cancer_probability >= 75;
+
+      let bannerClass = 'negative';
+      if (isPositive) bannerClass = 'positive';
+      else if (rl === 'low') bannerClass = 'low-risk';
+
+      const badgeClass = {
+        'Immediate':'badge-immediate','Urgent':'badge-urgent',
+        'Soon':'badge-soon','Routine':'badge-routine',
+      }[urgency] || 'badge-low';
+
+      const meterClass  = { low:'low', moderate:'moderate', high:'high', critical:'critical' }[rl] || 'low';
+      const scoreColour = meterClass==='critical'?'#e53e3e':meterClass==='high'?'#dd6b20':meterClass==='moderate'?'#d97706':'#38a169';
+      const isUrgent    = urgency === 'Immediate' || urgency === 'Urgent';
+
+      let resultLabel, resultClass;
+      if (!isPositive && rl === 'low') { resultLabel = 'Detection Result: LOW RISK'; resultClass = 'low-risk'; }
+      else if (isPositive)             { resultLabel = 'Detection Result: Positive';  resultClass = 'positive'; }
+      else                             { resultLabel = 'Detection Result: Negative';  resultClass = 'negative'; }
+
+      const origSrc = d.original_image_url || '';
+      let   gcamSrc = '';
+      if      (d.gradcam_image && d.gradcam_image.startsWith('data:')) gcamSrc = d.gradcam_image;
+      else if (d.gradcam_image)     gcamSrc = 'data:image/jpeg;base64,' + d.gradcam_image;
+      else if (d.gradcam_image_url) gcamSrc = d.gradcam_image_url;
+
+      const hasOrig = origSrc.trim() !== '';
+      const hasGcam = gcamSrc.trim() !== '';
+
+      const origImgHtml = hasOrig
+        ? `<img src="${origSrc}" alt="Original image" /><div class="gradcam-label">📷 Original Image</div>`
+        : `<div class="gradcam-placeholder"><div class="pi">📷</div>Original image not available</div>`;
+
+      const gcamImgHtml = hasGcam
+        ? `<img src="${gcamSrc}" alt="Grad-CAM heatmap" /><div class="gradcam-label">🔥 Grad-CAM Heatmap</div>`
+        : `<div class="gradcam-placeholder"><div class="pi">🔥</div>Train model to enable Grad-CAM</div>`;
+
+      const dt = d.created_at ? new Date(d.created_at).toLocaleString() : '—';
+
+      container.innerHTML = `
+
+        <!-- Auto-flag critical banner -->
+        <div class="critical-flag ${isCritical ? 'show' : ''}" id="critical-flag">
+          <div class="flag-icon">🚨</div>
+          <div>
+            <div class="flag-title">⚠️ CRITICAL RISK DETECTED — Immediate Action Required</div>
+            <div class="flag-desc">
+              Cancer probability is <strong>${d.cancer_probability.toFixed(1)}%</strong>,
+              which exceeds the critical threshold (75%). This case has been automatically
+              flagged for urgent review. Please consult a specialist immediately — do not delay.
+            </div>
+            <a class="flag-action" href="#hospital-section">📍 Find Nearest Specialist</a>
+          </div>
+        </div>
+
+        <!-- Detection Banner -->
+        <div class="detection-banner ${bannerClass}" style="animation-delay:0.05s">
+          <div>
+            <div class="detection-label">Analysis Result</div>
+            <div class="detection-result ${resultClass}">${resultLabel}</div>
+            <div class="detection-desc">${d.ai_description}</div>
+          </div>
+          <span class="badge ${badgeClass}">${urgency}</span>
+        </div>
+
+        <!-- Row 1: Severity + Risk -->
+        <div class="results-grid">
+          <div class="card" style="animation-delay:0.1s">
+            <div class="card-title">⚡ Severity Assessment</div>
+            <div class="score-label-row">
+              <span style="font-size:13px;color:var(--text2)">Level:</span>
+              <span class="badge ${badgeClass}">${d.severity_label}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-val" style="color:${scoreColour}">${d.severity_score.toFixed(1)}</span>
+              <span class="score-unit">% severity score</span>
+            </div>
+            <div class="score-desc">${isPositive ? 'High likelihood of malignant lesion detected.' : 'No significant malignant patterns detected.'}</div>
+            <div class="meter-bar"><div class="meter-fill ${meterClass}" id="meter-sev" style="width:0%"></div></div>
+            <div class="prob-row">
+              <div class="prob-block">
+                <div class="prob-val" style="color:#e53e3e">${d.cancer_probability.toFixed(1)}%</div>
+                <div class="prob-lbl">Cancer Prob.</div>
+              </div>
+              <div class="prob-block">
+                <div class="prob-val" style="color:#38a169">${d.normal_probability.toFixed(1)}%</div>
+                <div class="prob-lbl">Normal Prob.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="animation-delay:0.2s">
+            <div class="card-title">🎯 Risk Assessment</div>
+            <div class="score-label-row">
+              <span style="font-size:13px;color:var(--text2)">Risk Level:</span>
+              <span class="badge ${badgeClass}">${rl.charAt(0).toUpperCase()+rl.slice(1)}</span>
+            </div>
+            <div class="score-row">
+              <span class="score-val" style="color:${scoreColour}">${d.confidence_score.toFixed(1)}</span>
+              <span class="score-unit">% confidence</span>
+            </div>
+            <div class="score-desc">Probability: ${d.cancer_probability.toFixed(2)}%</div>
+            <div class="meter-bar" style="margin-bottom:16px">
+              <div class="meter-fill ${meterClass}" id="meter-conf" style="width:0%"></div>
+            </div>
+            <div class="factor-list">
+              ${d.risk_factors.map(f=>`
+                <div class="factor-item">
+                  <div class="factor-dot ${isPositive?'':'ok'}"></div>
+                  <span>${f}</span>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Lesion + Recommendations -->
+        <div class="results-grid">
+          <div class="card" style="animation-delay:0.3s">
+            <div class="card-title">🔬 Lesion Analysis</div>
+            <table class="lesion-table">
+              <tr><td>Location</td><td>${d.lesion_analysis.location}</td></tr>
+              <tr><td>Size</td>    <td>${d.lesion_analysis.size}</td></tr>
+              <tr><td>Color</td>   <td>${d.lesion_analysis.color}</td></tr>
+              <tr><td>Border</td>  <td>${d.lesion_analysis.border}</td></tr>
+              <tr><td>Surface</td> <td>${d.lesion_analysis.surface}</td></tr>
+            </table>
+          </div>
+          <div class="card" style="animation-delay:0.35s">
+            <div class="card-title">📋 Recommendations</div>
+            <div style="margin-bottom:12px">
+              <span style="font-size:13px;color:var(--text2)">Urgency: </span>
+              <span class="badge ${badgeClass}">${urgency}</span>
+            </div>
+            <div class="rec-list">
+              ${d.recommendations.map((r,i)=>`
+                <div class="rec-item">
+                  <div class="rec-num ${isUrgent?'urgent':''}">${i+1}</div>
+                  <div class="rec-text">${r}</div>
+                </div>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- Grad-CAM with before/after slider -->
+        <div class="gradcam-card" style="animation-delay:0.4s">
+          <div class="card-title">🔥 Grad-CAM Visualization</div>
+          <div class="gradcam-tabs">
+            <button class="gradcam-tab active" onclick="setGradcamView('side')">Side by Side</button>
+            <button class="gradcam-tab" onclick="setGradcamView('slider')" id="slider-tab">↔ Compare Slider</button>
+          </div>
+          <div id="gradcam-side">
+            <div class="gradcam-sidebyside">
+              <div class="gradcam-img-wrap">${origImgHtml}</div>
+              <div class="gradcam-img-wrap">${gcamImgHtml}</div>
+            </div>
+          </div>
+          <div class="slider-view" id="gradcam-slider">
+            ${hasOrig && hasGcam ? `
+            <div class="compare-container" id="compare-box">
+              <img src="${gcamSrc}" alt="Grad-CAM" style="z-index:1" />
+              <div class="compare-overlay" id="compare-overlay" style="width:50%;z-index:2">
+                <img src="${origSrc}" alt="Original" style="min-width:100vw;max-width:none;width:inherit" id="overlay-img"/>
+              </div>
+              <div class="compare-handle" id="compare-handle" style="left:50%">
+                <div class="compare-handle-icon">↔</div>
+              </div>
+              <div class="compare-label-l">📷 Original</div>
+              <div class="compare-label-r">🔥 Heatmap</div>
+            </div>
+            <p class="slider-hint">Drag the handle left/right to compare original and Grad-CAM heatmap</p>
+            ` : `<div style="text-align:center;padding:40px;color:var(--text3)">Both images are required for the comparison slider.</div>`}
+          </div>
+          <div class="gradcam-legend">
+            <div class="legend-item"><div class="legend-swatch" style="background:#c62828"></div> High activation — suspicious</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#ef6c00"></div> Medium-high</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#f9a825"></div> Medium</div>
+            <div class="legend-item"><div class="legend-swatch" style="background:#1565c0"></div> Low — normal tissue</div>
+          </div>
+        </div>
+
+        <!-- Nearby Hospital Finder -->
+        <div class="hospital-card" id="hospital-section" style="animation-delay:0.5s">
+          <div class="card-title">📍 Nearby Oral Cancer Specialists</div>
+          <p style="font-size:13px;color:var(--text2);margin-bottom:14px">
+            Find oral &amp; maxillofacial surgeons or dental oncology clinics near your current location.
+          </p>
+          <button class="btn-locate" id="locate-btn" onclick="findHospitals()">📍 Find Nearest Specialists</button>
+          <div id="hospital-status"></div>
+          <div id="hospital-list" class="hospital-list"></div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="card" style="animation-delay:0.55s;margin-bottom:16px">
+          <div class="card-title">📊 Analysis Metadata</div>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <div class="meta-label">Model Version</div>
+              <div class="meta-val">${d.model_version}</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Processing Time</div>
+              <div class="meta-val">${d.processing_time_ms} ms</div>
+            </div>
+            <div class="meta-item">
+              <div class="meta-label">Timestamp</div>
+              <div class="meta-val" style="font-size:12px">${dt}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="disclaimer">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px">⚠️</span>
+          <p><strong style="color:#92400e">Disclaimer:</strong> This AI analysis is for <strong style="color:#92400e">screening purposes only</strong> and is not a substitute for professional medical diagnosis. Results must be confirmed by a qualified oral health specialist.</p>
+        </div>
+
+        <!-- ══ Action row: Scan Again + Download PDF ══ -->
+        <div class="action-row">
+          <a class="btn-primary" href="/">🔄 Scan Another Image</a>
+          <button class="btn-pdf-page" onclick="openPdfModal()">
+            📄 Download PDF Report
+          </button>
+        </div>
+      `;
+
+      // Animate progress meters
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const s = document.getElementById('meter-sev');
+          const c = document.getElementById('meter-conf');
+          if (s) s.style.width = `${Math.min(d.severity_score,   100)}%`;
+          if (c) c.style.width = `${Math.min(d.confidence_score, 100)}%`;
+        }, 350);
+      });
+
+      if (hasOrig && hasGcam) initCompareSlider();
+      fixOverlayImage();
+    }
+
+    // ── Grad-CAM view toggle ─────────────────────────────────────────
+    function setGradcamView(view) {
+      document.getElementById('gradcam-side').style.display = view === 'side' ? '' : 'none';
+      document.getElementById('gradcam-slider').classList.toggle('show', view === 'slider');
+      document.querySelectorAll('.gradcam-tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && view === 'side') || (i === 1 && view === 'slider'));
+      });
+      if (view === 'slider') fixOverlayImage();
+    }
+
+    // ── Compare slider ───────────────────────────────────────────────
+    function fixOverlayImage() {
+      const box = document.getElementById('compare-box');
+      const img = document.getElementById('overlay-img');
+      if (box && img) {
+        const w = box.offsetWidth;
+        img.style.width    = w + 'px';
+        img.style.minWidth = 'unset';
+        img.style.maxWidth = 'unset';
+      }
+    }
+
+    function initCompareSlider() {
+      const box     = document.getElementById('compare-box');
+      const overlay = document.getElementById('compare-overlay');
+      const handle  = document.getElementById('compare-handle');
+      if (!box || !overlay || !handle) return;
+
+      let dragging = false;
+
+      function setPosition(clientX) {
+        const rect = box.getBoundingClientRect();
+        let pct    = (clientX - rect.left) / rect.width;
+        pct        = Math.max(0.02, Math.min(0.98, pct));
+        overlay.style.width = (pct * 100) + '%';
+        handle.style.left   = (pct * 100) + '%';
+        fixOverlayImage();
+      }
+
+      handle.addEventListener('mousedown', e => { dragging = true; e.preventDefault(); });
+      box.addEventListener('mousedown',    e => { dragging = true; setPosition(e.clientX); });
+      window.addEventListener('mousemove', e => { if (dragging) setPosition(e.clientX); });
+      window.addEventListener('mouseup',   () => { dragging = false; });
+      handle.addEventListener('touchstart', () => { dragging = true; }, { passive: true });
+      box.addEventListener('touchstart',    e => { dragging = true; setPosition(e.touches[0].clientX); }, { passive: true });
+      window.addEventListener('touchmove',  e => { if (dragging) setPosition(e.touches[0].clientX); }, { passive: true });
+      window.addEventListener('touchend',   () => { dragging = false; });
+      window.addEventListener('resize', fixOverlayImage);
+    }
+
+    // ── Hospital Finder ──────────────────────────────────────────────
+    function findHospitals() {
+      const btn    = document.getElementById('locate-btn');
+      const status = document.getElementById('hospital-status');
+      const list   = document.getElementById('hospital-list');
+
+      if (!navigator.geolocation) {
+        status.innerHTML = '<span style="color:var(--text3)">⚠️ Geolocation is not supported by your browser.</span>';
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = '⏳ Locating...';
+      status.innerHTML = '<span style="color:var(--text3)">Getting your location…</span>';
+      list.innerHTML   = '';
+
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          list.innerHTML = `
+            <div class="hospital-item">
+              <div class="hospital-info">
+                <div class="hospital-name">🗺️ Search on Google Maps</div>
+                <div class="hospital-addr">Oral cancer specialists, dental oncologists &amp; maxillofacial surgeons near you</div>
+              </div>
+              <a class="btn-map" href="https://www.google.com/maps/search/oral+cancer+specialist+near+me/@${lat},${lng},13z" target="_blank" rel="noopener">Open Maps ↗</a>
+            </div>
+            <div class="hospital-item">
+              <div class="hospital-info">
+                <div class="hospital-name">🏥 Oral &amp; Maxillofacial Surgeons</div>
+                <div class="hospital-addr">Specialists in oral cavity diagnosis, biopsy, and treatment</div>
+              </div>
+              <a class="btn-map" href="https://www.google.com/maps/search/oral+maxillofacial+surgeon/@${lat},${lng},13z" target="_blank" rel="noopener">Find ↗</a>
+            </div>
+            <div class="hospital-item">
+              <div class="hospital-info">
+                <div class="hospital-name">🦷 Dental Oncology Clinics</div>
+                <div class="hospital-addr">Dental specialists with oncology expertise</div>
+              </div>
+              <a class="btn-map" href="https://www.google.com/maps/search/dental+oncology+clinic/@${lat},${lng},13z" target="_blank" rel="noopener">Find ↗</a>
+            </div>
+            <div class="hospital-item">
+              <div class="hospital-info">
+                <div class="hospital-name">🏨 ENT (Head &amp; Neck) Specialists</div>
+                <div class="hospital-addr">Ear, nose and throat specialists for head and neck cancer</div>
+              </div>
+              <a class="btn-map" href="https://www.google.com/maps/search/ENT+head+neck+cancer+specialist/@${lat},${lng},13z" target="_blank" rel="noopener">Find ↗</a>
+            </div>`;
+          status.innerHTML = `<span style="color:#38a169">✅ Your location: ${lat.toFixed(4)}, ${lng.toFixed(4)} — click any link to open Google Maps.</span>`;
+          btn.textContent  = '🔄 Refresh Location';
+          btn.disabled     = false;
+        },
+        err => {
+          const msgs = {1:'Location access was denied.',2:'Location unavailable.',3:'Request timed out.'};
+          status.innerHTML = `<span style="color:var(--text3)">⚠️ ${msgs[err.code] || 'Location error.'}</span>`;
+          btn.textContent  = '📍 Try Again';
+          btn.disabled     = false;
+        },
+        { timeout: 10000 }
+      );
+    }
+  </script>
+</body>
+</html>
