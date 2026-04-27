@@ -27,8 +27,6 @@ Tech Stack
 ---
 
 Setup
-git clone https://github.com/yourusername/oralguard-ai.git
-cd oralguard-ai
 python -m venv env
 env\Scripts\activate
 pip install -r requirements.txt
