@@ -18,7 +18,7 @@ Features
 
 Tech Stack
 
--Backend: Django, Django REST Framework  
+- Backend: Django, Django REST Framework  
 - AI Model: TensorFlow, Keras (MobileNetV2)  
 - Computer Vision: OpenCV  
 - Frontend: HTML, CSS, JavaScript  
@@ -27,8 +27,13 @@ Tech Stack
 ---
 
 Setup
+
 python -m venv env
+
 env\Scripts\activate
+
 pip install -r requirements.txt
+
 python manage.py migrate
+
 python manage.py runserver
